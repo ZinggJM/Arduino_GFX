@@ -4,7 +4,7 @@
 #include "Arduino_DataBus.h"
 
 // for MCUFriend UNO kind of shields. -jz-
-#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_UNOR4_WIFI)
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_UNOR4_MINIMA) || defined(ARDUINO_UNOR4_WIFI)
 
 class Arduino_UNOPAR8 : public Arduino_DataBus
 {
@@ -48,4 +48,4 @@ private:
 
 #endif // _ARDUINO_UNOPAR8_H_
 
-#endif // #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_UNOR4_WIFI)
+#endif // #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_UNOR4_MINIMA) || defined(ARDUINO_UNOR4_WIFI)
