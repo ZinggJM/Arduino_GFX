@@ -35,6 +35,7 @@
 #include "databus/Arduino_SWPAR8.h"
 #include "databus/Arduino_SWPAR16.h"
 #include "databus/Arduino_SWSPI.h"
+#include "databus/Arduino_Wire.h"
 #include "databus/Arduino_XL9535SWSPI.h"
 #include "databus/Arduino_XCA9554SWSPI.h"
 
@@ -67,6 +68,7 @@
 #include "display/Arduino_ILI9488_18bit.h"
 #include "display/Arduino_ILI9806.h"
 #include "display/Arduino_JBT6K71.h"
+#include "display/Arduino_JD9613.h"
 #include "display/Arduino_NT35310.h"
 #include "display/Arduino_NT35510.h"
 #include "display/Arduino_NT39125.h"
@@ -76,12 +78,14 @@
 #include "display/Arduino_RM67162.h"
 #include "display/Arduino_RGB_Display.h"
 #include "display/Arduino_SEPS525.h"
+#include "display/Arduino_SH1106.h"
 #include "display/Arduino_SSD1283A.h"
 #include "display/Arduino_SSD1331.h"
 #include "display/Arduino_SSD1351.h"
 #include "display/Arduino_ST7735.h"
 #include "display/Arduino_ST7789.h"
 #include "display/Arduino_ST7796.h"
+#include "display/Arduino_WEA2012.h"
 
 #if defined(ARDUINO_ARCH_SAMD) && defined(SEEED_GROVE_UI_WIRELESS)
 #define DISPLAY_DEV_KIT

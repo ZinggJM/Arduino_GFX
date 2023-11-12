@@ -84,9 +84,6 @@ bool Arduino_SWPAR16::begin(int32_t, int8_t)
   {
     pin = digitalPinToPinName((pin_size_t)_rd);
     reg = nrf_gpio_pin_port_decode(&pin);
-    _rdPortSet = &reg->OUTSET;
-    _rdPortClr = &reg->OUTCLR;
-    _rdPinMask = 1UL << pin;
   }
   pin = digitalPinToPinName((pin_size_t)_d0);
   reg = nrf_gpio_pin_port_decode(&pin);
@@ -168,6 +165,68 @@ bool Arduino_SWPAR16::begin(int32_t, int8_t)
   _d15PortSet = &reg->OUTSET;
   _d15PortClr = &reg->OUTCLR;
   _d15PinMask = 1UL << pin;
+#elif defined(ARDUINO_UNOR4_MINIMA) || defined(ARDUINO_UNOR4_WIFI)
+  _dcPinMask = digitalPinToBitMask(_dc);
+  _dcPortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_dc)))->POSR);
+  _dcPortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_dc)))->PORR);
+  if (_cs != GFX_NOT_DEFINED)
+  {
+    _csPinMask = digitalPinToBitMask(_cs);
+    _csPortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_cs)))->POSR);
+    _csPortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_cs)))->PORR);
+  }
+  _wrPinMask = digitalPinToBitMask(_wr);
+  _wrPortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_wr)))->POSR);
+  _wrPortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_wr)))->PORR);
+
+  _d0PinMask = digitalPinToBitMask(_d0);
+  _d0PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d0)))->POSR);
+  _d0PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d0)))->PORR);
+  _d1PinMask = digitalPinToBitMask(_d1);
+  _d1PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d1)))->POSR);
+  _d1PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d1)))->PORR);
+  _d2PinMask = digitalPinToBitMask(_d2);
+  _d2PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d2)))->POSR);
+  _d2PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d2)))->PORR);
+  _d3PinMask = digitalPinToBitMask(_d3);
+  _d3PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d3)))->POSR);
+  _d3PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d3)))->PORR);
+  _d4PinMask = digitalPinToBitMask(_d4);
+  _d4PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d4)))->POSR);
+  _d4PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d4)))->PORR);
+  _d5PinMask = digitalPinToBitMask(_d5);
+  _d5PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d5)))->POSR);
+  _d5PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d5)))->PORR);
+  _d6PinMask = digitalPinToBitMask(_d6);
+  _d6PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d6)))->POSR);
+  _d6PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d6)))->PORR);
+  _d7PinMask = digitalPinToBitMask(_d7);
+  _d7PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d7)))->POSR);
+  _d7PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d7)))->PORR);
+  _d8PinMask = digitalPinToBitMask(_d8);
+  _d8PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d8)))->POSR);
+  _d8PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d8)))->PORR);
+  _d9PinMask = digitalPinToBitMask(_d9);
+  _d9PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d9)))->POSR);
+  _d9PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d9)))->PORR);
+  _d10PinMask = digitalPinToBitMask(_d10);
+  _d10PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d10)))->POSR);
+  _d10PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d10)))->PORR);
+  _d11PinMask = digitalPinToBitMask(_d11);
+  _d11PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d11)))->POSR);
+  _d11PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d11)))->PORR);
+  _d12PinMask = digitalPinToBitMask(_d12);
+  _d12PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d12)))->POSR);
+  _d12PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d12)))->PORR);
+  _d13PinMask = digitalPinToBitMask(_d13);
+  _d13PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d13)))->POSR);
+  _d13PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d13)))->PORR);
+  _d14PinMask = digitalPinToBitMask(_d14);
+  _d14PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d14)))->POSR);
+  _d14PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d14)))->PORR);
+  _d15PinMask = digitalPinToBitMask(_d15);
+  _d15PortSet = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d15)))->POSR);
+  _d15PortClr = (PORTreg_t) & (((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(digitalPinToPort(_d15)))->PORR);
 #elif defined(TARGET_RP2040)
   _dcPinMask = digitalPinToBitMask(_dc);
   _dcPortSet = (PORTreg_t)&sio_hw->gpio_set;
@@ -181,12 +240,7 @@ bool Arduino_SWPAR16::begin(int32_t, int8_t)
   _wrPinMask = digitalPinToBitMask(_wr);
   _wrPortSet = (PORTreg_t)&sio_hw->gpio_set;
   _wrPortClr = (PORTreg_t)&sio_hw->gpio_clr;
-  if (_rd != GFX_NOT_DEFINED)
-  {
-    _rdPinMask = digitalPinToBitMask(_rd);
-    _rdPortSet = (PORTreg_t)&sio_hw->gpio_set;
-    _rdPortClr = (PORTreg_t)&sio_hw->gpio_clr;
-  }
+
   _d0PinMask = digitalPinToBitMask(_d0);
   _d0PortSet = (PORTreg_t)&sio_hw->gpio_set;
   _d0PortClr = (PORTreg_t)&sio_hw->gpio_clr;
@@ -248,12 +302,7 @@ bool Arduino_SWPAR16::begin(int32_t, int8_t)
   _wrPinMask = digitalPinToBitMask(_wr);
   _wrPortSet = (PORTreg_t)&GPIO.out_w1ts;
   _wrPortClr = (PORTreg_t)&GPIO.out_w1tc;
-  if (_rd != GFX_NOT_DEFINED)
-  {
-    _rdPinMask = digitalPinToBitMask(_rd);
-    _rdPortSet = (PORTreg_t)&GPIO.out_w1ts;
-    _rdPortClr = (PORTreg_t)&GPIO.out_w1tc;
-  }
+
   _d0PinMask = digitalPinToBitMask(_d0);
   _d0PortSet = (PORTreg_t)&GPIO.out_w1ts;
   _d0PortClr = (PORTreg_t)&GPIO.out_w1tc;
@@ -337,18 +386,7 @@ bool Arduino_SWPAR16::begin(int32_t, int8_t)
     _wrPortSet = (PORTreg_t)&GPIO.out_w1ts;
     _wrPortClr = (PORTreg_t)&GPIO.out_w1tc;
   }
-  if (_rd >= 32)
-  {
-    _rdPinMask = digitalPinToBitMask(_rd);
-    _rdPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
-    _rdPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
-  }
-  else if (_rd != GFX_NOT_DEFINED)
-  {
-    _rdPinMask = digitalPinToBitMask(_rd);
-    _rdPortSet = (PORTreg_t)&GPIO.out_w1ts;
-    _rdPortClr = (PORTreg_t)&GPIO.out_w1tc;
-  }
+
   _d0PinMask = digitalPinToBitMask(_d0);
   if (_d0 >= 32)
   {
@@ -544,14 +582,7 @@ bool Arduino_SWPAR16::begin(int32_t, int8_t)
 #endif
   _wrPortSet = portSetRegister(_wr);
   _wrPortClr = portClearRegister(_wr);
-  if (_rd != GFX_NOT_DEFINED)
-  {
-#if !defined(KINETISK)
-    _rdPinMask = digitalPinToBitMask(_rd);
-#endif
-    _rdPortSet = portSetRegister(_rd);
-    _rdPortClr = portClearRegister(_rd);
-  }
+
 #if !defined(KINETISK)
   _d0PinMask = digitalPinToBitMask(_d0);
 #endif
@@ -645,12 +676,7 @@ bool Arduino_SWPAR16::begin(int32_t, int8_t)
   _wrPinMask = digitalPinToBitMask(_wr);
   _wrPortSet = &(PORT->Group[g_APinDescription[_wr].ulPort].OUTSET.reg);
   _wrPortClr = &(PORT->Group[g_APinDescription[_wr].ulPort].OUTCLR.reg);
-  if (_rd != GFX_NOT_DEFINED)
-  {
-    _rdPinMask = digitalPinToBitMask(_rd);
-    _rdPortSet = &(PORT->Group[g_APinDescription[_rd].ulPort].OUTSET.reg);
-    _rdPortClr = &(PORT->Group[g_APinDescription[_rd].ulPort].OUTCLR.reg);
-  }
+
   _d0PinMask = digitalPinToBitMask(_d0);
   _d0PortSet = &(PORT->Group[g_APinDescription[_d0].ulPort].OUTSET.reg);
   _d0PortClr = &(PORT->Group[g_APinDescription[_d0].ulPort].OUTCLR.reg);
@@ -713,12 +739,7 @@ bool Arduino_SWPAR16::begin(int32_t, int8_t)
   _wrPort = (PORTreg_t)portOutputRegister(digitalPinToPort(_wr));
   _wrPinMaskSet = digitalPinToBitMask(_wr);
   _wrPinMaskClr = ~_wrPinMaskSet;
-  if (_rd != GFX_NOT_DEFINED)
-  {
-    _rdPort = (PORTreg_t)portOutputRegister(digitalPinToPort(_rd));
-    _rdPinMaskSet = digitalPinToBitMask(_rd);
-    _rdPinMaskClr = ~_rdPinMaskSet;
-  }
+
   _d0Port = (PORTreg_t)portOutputRegister(digitalPinToPort(_d0));
   _d0PinMaskSet = digitalPinToBitMask(_d0);
   _d0PinMaskClr = ~_d0PinMaskSet;
@@ -1243,46 +1264,6 @@ INLINE void Arduino_SWPAR16::WR_LOW(void)
 #else  // !USE_FAST_PINIO
   digitalWrite(_wr, LOW);
 #endif // end !USE_FAST_PINIO
-}
-
-INLINE void Arduino_SWPAR16::RD_HIGH(void)
-{
-  if (_rd != GFX_NOT_DEFINED)
-  {
-#if defined(USE_FAST_PINIO)
-#if defined(HAS_PORT_SET_CLR)
-#if defined(KINETISK)
-    *_rdPortSet = 1;
-#else  // !KINETISK
-    *_rdPortSet = _rdPinMask;
-#endif // end !KINETISK
-#else  // !HAS_PORT_SET_CLR
-    *_rdPort |= _rdPinMaskSet;
-#endif // end !HAS_PORT_SET_CLR
-#else  // !USE_FAST_PINIO
-    digitalWrite(_rd, HIGH);
-#endif // end !USE_FAST_PINIO
-  }
-}
-
-INLINE void Arduino_SWPAR16::RD_LOW(void)
-{
-  if (_rd != GFX_NOT_DEFINED)
-  {
-#if defined(USE_FAST_PINIO)
-#if defined(HAS_PORT_SET_CLR)
-#if defined(KINETISK)
-    *_rdPortClr = 1;
-#else  // !KINETISK
-    *_rdPortClr = _rdPinMask;
-#endif // end !KINETISK
-#else  // !HAS_PORT_SET_CLR
-    *_rdPort &= _rdPinMaskClr;
-#endif // end !HAS_PORT_SET_CLR
-#else  // !USE_FAST_PINIO
-    digitalWrite(_rd, LOW);
-#endif // end !USE_FAST_PINIO
-  }
 }
 
 INLINE void Arduino_SWPAR16::D0_HIGH(void)

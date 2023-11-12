@@ -5,10 +5,9 @@
 #ifndef _ARDUINO_GFX_H_
 #define _ARDUINO_GFX_H_
 
-#include <Arduino.h>
-#include <Print.h>
 #include "Arduino_G.h"
 #include "Arduino_DataBus.h"
+#include <Print.h>
 
 #if !defined(ATTINY_CORE)
 #include "gfxfont.h"
@@ -191,6 +190,7 @@ public:
   virtual void invertDisplay(bool i);
   virtual void displayOn();
   virtual void displayOff();
+  bool enableRoundMode();
 
   // BASIC DRAW API
   // These MAY be overridden by the subclass to provide device-specific
@@ -241,12 +241,12 @@ public:
 
   // adopt from LovyanGFX
   void drawEllipse(int16_t x, int16_t y, int16_t rx, int16_t ry, uint16_t color);
-  void drawEllipseHelper(int32_t x, int32_t y, int32_t rx, int32_t ry, uint8_t cornername, uint16_t color);
+  void writeEllipseHelper(int32_t x, int32_t y, int32_t rx, int32_t ry, uint8_t cornername, uint16_t color);
   void fillEllipse(int16_t x, int16_t y, int16_t rx, int16_t ry, uint16_t color);
-  void fillEllipseHelper(int32_t x, int32_t y, int32_t rx, int32_t ry, uint8_t cornername, int16_t delta, uint16_t color);
+  void writeFillEllipseHelper(int32_t x, int32_t y, int32_t rx, int32_t ry, uint8_t cornername, int16_t delta, uint16_t color);
   void drawArc(int16_t x, int16_t y, int16_t r1, int16_t r2, float start, float end, uint16_t color);
   void fillArc(int16_t x, int16_t y, int16_t r1, int16_t r2, float start, float end, uint16_t color);
-  void fillArcHelper(int16_t cx, int16_t cy, int16_t oradius, int16_t iradius, float start, float end, uint16_t color);
+  void writeFillArcHelper(int16_t cx, int16_t cy, int16_t oradius, int16_t iradius, float start, float end, uint16_t color);
 
 // TFT optimization code, too big for ATMEL family
 #if defined(LITTLE_FOOT_PRINT)
@@ -296,6 +296,28 @@ public:
   {
     cursor_x = x;
     cursor_y = y;
+  }
+
+  /**********************************************************************/
+  /*!
+    @brief  Set text bound for printing
+    @param  x    X coordinate in pixels
+    @param  y    Y coordinate in pixels
+  */
+  void setTextBound(int16_t x, int16_t y, int16_t w, int16_t h)
+  {
+    _min_text_x = (x < 0) ? 0 : x;
+    _min_text_y = (y < 0) ? 0 : y;
+    _max_text_x = x + w - 1;
+    if (_max_text_x > _max_x)
+    {
+      _max_text_x = _max_x;
+    }
+    _max_text_y = y + h - 1;
+    if (_max_text_y > _max_y)
+    {
+      _max_text_y = _max_y;
+    }
   }
 
   /**********************************************************************/
@@ -392,10 +414,14 @@ public:
 protected:
   void charBounds(char c, int16_t *x, int16_t *y, int16_t *minx, int16_t *miny, int16_t *maxx, int16_t *maxy);
   int16_t
-      _width,   ///< Display width as modified by current rotation
-      _height,  ///< Display height as modified by current rotation
-      _max_x,   ///< x zero base bound (_width - 1)
-      _max_y,   ///< y zero base bound (_height - 1)
+      _width,  ///< Display width as modified by current rotation
+      _height, ///< Display height as modified by current rotation
+      _max_x,  ///< x zero base bound (_width - 1)
+      _max_y,  ///< y zero base bound (_height - 1)
+      _min_text_x,
+      _min_text_y,
+      _max_text_x,
+      _max_text_y,
       cursor_x, ///< x location to start print()ing text
       cursor_y; ///< y location to start print()ing text
   uint16_t
@@ -441,8 +467,8 @@ protected:
 
   int8_t _u8g2_dx;
   int8_t _u8g2_dy;
-  uint16_t _u8g2_target_x;
-  uint16_t _u8g2_target_y;
+  int16_t _u8g2_target_x;
+  int16_t _u8g2_target_y;
 
   const uint8_t *_u8g2_decode_ptr;
   uint8_t _u8g2_decode_bit_pos;
@@ -453,6 +479,10 @@ protected:
       WIDTH,  ///< This is the 'raw' display width - never changes
       HEIGHT; ///< This is the 'raw' display height - never changes
 #endif        // defined(LITTLE_FOOT_PRINT)
+
+  bool _isRoundMode = false;
+  int16_t *_roundMinX;
+  int16_t *_roundMaxX;
 };
 
 #endif // _ARDUINO_GFX_H_
