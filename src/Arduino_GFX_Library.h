@@ -4,6 +4,7 @@
 #include "Arduino_DataBus.h"
 #include "databus/Arduino_AVRPAR8.h"
 #include "databus/Arduino_UNOPAR8.h"
+#include "databus/Arduino_UNOPAR8_WRS.h"
 #include "databus/Arduino_AVRPAR16.h"
 #include "databus/Arduino_DUEPAR16.h"
 #include "databus/Arduino_ESP32LCD8.h"
