@@ -4,6 +4,8 @@
  */
 #include "Arduino_ESP32LCD16.h"
 
+#if (ESP_ARDUINO_VERSION_MAJOR < 3)
+
 #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S3)
 
 #define WAIT_LCD_NOT_BUSY while (LCD_CAM.lcd_user.val & LCD_CAM_LCD_START)
@@ -40,14 +42,14 @@ bool Arduino_ESP32LCD16::begin(int32_t speed, int8_t dataMode)
   if (_cs >= 32)
   {
     _csPinMask = digitalPinToBitMask(_cs);
-    _csPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
-    _csPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
+    _csPortSet = (PORTreg_t)GPIO_OUT1_W1TS_REG;
+    _csPortClr = (PORTreg_t)GPIO_OUT1_W1TC_REG;
   }
   else if (_cs != GFX_NOT_DEFINED)
   {
     _csPinMask = digitalPinToBitMask(_cs);
-    _csPortSet = (PORTreg_t)&GPIO.out_w1ts;
-    _csPortClr = (PORTreg_t)&GPIO.out_w1tc;
+    _csPortSet = (PORTreg_t)GPIO_OUT_W1TS_REG;
+    _csPortClr = (PORTreg_t)GPIO_OUT_W1TC_REG;
   }
 
   pinMode(_wr, OUTPUT);
@@ -136,6 +138,12 @@ bool Arduino_ESP32LCD16::begin(int32_t speed, int8_t dataMode)
 
   _dma_chan = _i80_bus->dma_chan;
   _dmadesc = (dma_descriptor_t *)heap_caps_malloc(sizeof(dma_descriptor_t), MALLOC_CAP_DMA);
+
+  _buffer = (uint8_t *)heap_caps_aligned_alloc(16, LCD_MAX_PIXELS_AT_ONCE * 2, MALLOC_CAP_DMA);
+  if (!_buffer)
+  {
+    return false;
+  }
 
   return true;
 }
@@ -487,3 +495,5 @@ INLINE void Arduino_ESP32LCD16::CS_LOW(void)
 }
 
 #endif // #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S3)
+
+#endif // #if (ESP_ARDUINO_VERSION_MAJOR < 3)

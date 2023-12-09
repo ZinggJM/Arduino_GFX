@@ -4,6 +4,8 @@
  */
 #include "Arduino_DataBus.h"
 
+#if (ESP_ARDUINO_VERSION_MAJOR < 3)
+
 #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S3)
 
 #ifndef _ARDUINO_ESP32LCD16_H_
@@ -79,12 +81,14 @@ private:
 
   union
   {
-    uint8_t _buffer[LCD_MAX_PIXELS_AT_ONCE * 2] = {0};
-    uint16_t _buffer16[LCD_MAX_PIXELS_AT_ONCE];
-    uint32_t _buffer32[LCD_MAX_PIXELS_AT_ONCE / 2];
+    uint8_t* _buffer;
+    uint16_t* _buffer16;
+    uint32_t* _buffer32;
   };
 };
 
 #endif // _ARDUINO_ESP32LCD16_H_
 
 #endif // #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S3)
+
+#endif // #if (ESP_ARDUINO_VERSION_MAJOR < 3)

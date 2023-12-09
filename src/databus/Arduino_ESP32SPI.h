@@ -5,9 +5,17 @@
 #if defined(ESP32)
 #include "soc/spi_struct.h"
 #if CONFIG_IDF_TARGET_ESP32S3
+#if (ESP_ARDUINO_VERSION_MAJOR < 3)
 #include "driver/periph_ctrl.h"
+#else
+#include "esp_private/periph_ctrl.h"
+#endif
 #elif CONFIG_IDF_TARGET_ESP32C3
+#if (ESP_ARDUINO_VERSION_MAJOR < 3)
 #include "driver/periph_ctrl.h"
+#else
+#include "esp_private/periph_ctrl.h"
+#endif
 #include "esp32c3/rom/gpio.h"
 #include "soc/periph_defs.h"
 #else
@@ -73,12 +81,14 @@ private:
 
   spi_t *_spi;
   uint8_t _bitOrder = SPI_MSBFIRST;
+
   union
   {
-    uint8_t _buffer[ESP32SPI_MAX_PIXELS_AT_ONCE * 2] = {0};
-    uint16_t _buffer16[ESP32SPI_MAX_PIXELS_AT_ONCE];
-    uint32_t _buffer32[ESP32SPI_MAX_PIXELS_AT_ONCE / 2];
+    uint8_t* _buffer;
+    uint16_t* _buffer16;
+    uint32_t* _buffer32;
   };
+
   uint16_t _data_buf_bit_idx = 0;
 };
 
