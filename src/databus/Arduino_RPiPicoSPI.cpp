@@ -3,7 +3,7 @@
 #include "Arduino_DataBus.h"
 #include "Arduino_RPiPicoSPI.h"
 
-Arduino_RPiPicoSPI::Arduino_RPiPicoSPI(int8_t dc /* = GFX_NOT_DEFINED */, int8_t cs /* = GFX_NOT_DEFINED */, int8_t sck /* = PIN_SPI0_SCK */, int8_t mosi /* = PIN_SPI0_MOSI */, int8_t miso /* = PIN_SPI0_MISO */, spi_inst_t *spi /* = spi0 */)
+Arduino_RPiPicoSPI::Arduino_RPiPicoSPI(int8_t dc /* = GFX_NOT_DEFINED */, int8_t cs /* = GFX_NOT_DEFINED */, int8_t sck /* = 18 */, int8_t mosi /* = 19 */, int8_t miso /* = 16 */, spi_inst_t *spi /* = spi0 */)
     : _dc(dc), _cs(cs), _sck(sck), _mosi(mosi), _miso(miso), _spi(spi)
 {
 }
@@ -71,6 +71,18 @@ void Arduino_RPiPicoSPI::writeCommand16(uint16_t c)
   DC_LOW();
 
   WRITE16(c);
+
+  DC_HIGH();
+}
+
+void Arduino_RPiPicoSPI::writeCommandBytes(uint8_t *data, uint32_t len)
+{
+  DC_LOW();
+
+  while (len--)
+  {
+    WRITE(*data++);
+  }
 
   DC_HIGH();
 }
@@ -172,35 +184,35 @@ void Arduino_RPiPicoSPI::writeBytes(uint8_t *data, uint32_t len)
   WRITEBUF(data, len);
 }
 
-INLINE void Arduino_RPiPicoSPI::WRITE(uint8_t d)
+GFX_INLINE void Arduino_RPiPicoSPI::WRITE(uint8_t d)
 {
   spi_write_blocking(_spi, (const uint8_t *)&d, 1);
 }
 
-INLINE void Arduino_RPiPicoSPI::WRITE16(uint16_t d)
+GFX_INLINE void Arduino_RPiPicoSPI::WRITE16(uint16_t d)
 {
   MSB_16_SET(d, d);
   spi_write_blocking(_spi, (const uint8_t *)&d, 2);
 }
 
-INLINE void Arduino_RPiPicoSPI::WRITEBUF(uint8_t *buf, size_t count)
+GFX_INLINE void Arduino_RPiPicoSPI::WRITEBUF(uint8_t *buf, size_t count)
 {
   spi_write_blocking(_spi, (const uint8_t *)buf, count);
 }
 
 /******** low level bit twiddling **********/
 
-INLINE void Arduino_RPiPicoSPI::DC_HIGH(void)
+GFX_INLINE void Arduino_RPiPicoSPI::DC_HIGH(void)
 {
   *_dcPortSet = _dcPinMask;
 }
 
-INLINE void Arduino_RPiPicoSPI::DC_LOW(void)
+GFX_INLINE void Arduino_RPiPicoSPI::DC_LOW(void)
 {
   *_dcPortClr = _dcPinMask;
 }
 
-INLINE void Arduino_RPiPicoSPI::CS_HIGH(void)
+GFX_INLINE void Arduino_RPiPicoSPI::CS_HIGH(void)
 {
   if (_cs != GFX_NOT_DEFINED)
   {
@@ -208,7 +220,7 @@ INLINE void Arduino_RPiPicoSPI::CS_HIGH(void)
   }
 }
 
-INLINE void Arduino_RPiPicoSPI::CS_LOW(void)
+GFX_INLINE void Arduino_RPiPicoSPI::CS_LOW(void)
 {
   if (_cs != GFX_NOT_DEFINED)
   {

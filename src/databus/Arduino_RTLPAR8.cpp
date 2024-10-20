@@ -132,6 +132,18 @@ void Arduino_RTLPAR8::writeCommand16(uint16_t c)
   DC_HIGH();
 }
 
+void Arduino_RTLPAR8::writeCommandBytes(uint8_t *data, uint32_t len)
+{
+  DC_LOW();
+
+  while (len--)
+  {
+    WRITE(*data++);
+  }
+
+  DC_HIGH();
+}
+
 void Arduino_RTLPAR8::write(uint8_t d)
 {
   WRITE(d);
@@ -294,7 +306,7 @@ void Arduino_RTLPAR8::writeIndexedPixelsDouble(uint8_t *data, uint16_t *idx, uin
   }
 }
 
-INLINE void Arduino_RTLPAR8::WRITE(uint8_t d)
+GFX_INLINE void Arduino_RTLPAR8::WRITE(uint8_t d)
 {
   uint32_t dataMaskBase = *_dataPort & _dataPinMaskClr;
   uint32_t wrMaskBase = *_wrPort & _wrPinMaskClr;
@@ -306,17 +318,17 @@ INLINE void Arduino_RTLPAR8::WRITE(uint8_t d)
 
 /******** low level bit twiddling **********/
 
-INLINE void Arduino_RTLPAR8::DC_HIGH(void)
+GFX_INLINE void Arduino_RTLPAR8::DC_HIGH(void)
 {
   *_dcPort |= _dcPinMaskSet;
 }
 
-INLINE void Arduino_RTLPAR8::DC_LOW(void)
+GFX_INLINE void Arduino_RTLPAR8::DC_LOW(void)
 {
   *_dcPort &= _dcPinMaskClr;
 }
 
-INLINE void Arduino_RTLPAR8::CS_HIGH(void)
+GFX_INLINE void Arduino_RTLPAR8::CS_HIGH(void)
 {
   if (_cs != GFX_NOT_DEFINED)
   {
@@ -324,7 +336,7 @@ INLINE void Arduino_RTLPAR8::CS_HIGH(void)
   }
 }
 
-INLINE void Arduino_RTLPAR8::CS_LOW(void)
+GFX_INLINE void Arduino_RTLPAR8::CS_LOW(void)
 {
   if (_cs != GFX_NOT_DEFINED)
   {

@@ -4,9 +4,8 @@
  */
 #include "Arduino_ESP32LCD8.h"
 
-#if (ESP_ARDUINO_VERSION_MAJOR < 3)
-
 #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S3)
+#if (!defined(ESP_ARDUINO_VERSION_MAJOR)) || (ESP_ARDUINO_VERSION_MAJOR < 3)
 
 #define WAIT_LCD_NOT_BUSY while (LCD_CAM.lcd_user.val & LCD_CAM_LCD_START)
 
@@ -227,6 +226,21 @@ void Arduino_ESP32LCD8::writeCommand16(uint16_t c)
   LCD_CAM.lcd_misc.val = LCD_CAM_LCD_CD_IDLE_EDGE;
 }
 
+void Arduino_ESP32LCD8::writeCommandBytes(uint8_t *data, uint32_t len)
+{
+  LCD_CAM.lcd_misc.val = LCD_CAM_LCD_CD_IDLE_EDGE | LCD_CAM_LCD_CD_CMD_SET;
+
+  while (len--)
+  {
+    _data16.value = *data++;
+    LCD_CAM.lcd_cmd_val.lcd_cmd_value = _data16.msb;
+    WAIT_LCD_NOT_BUSY;
+    LCD_CAM.lcd_user.val = LCD_CAM_LCD_CMD | LCD_CAM_LCD_UPDATE_REG | LCD_CAM_LCD_START;
+  }
+
+  LCD_CAM.lcd_misc.val = LCD_CAM_LCD_CD_IDLE_EDGE;
+}
+
 /**
  * @brief write
  *
@@ -441,83 +455,44 @@ void Arduino_ESP32LCD8::writePixels(uint16_t *data, uint32_t len)
 {
   uint32_t xferLen, l;
 
-  if (esp_ptr_dma_capable(data))
+  while (len > (USE_DMA_THRESHOLD)) // While pixels remain
   {
-    while (len > (USE_DMA_THRESHOLD)) // While pixels remain
+    xferLen = (len >= LCD_MAX_PIXELS_AT_ONCE) ? (LCD_MAX_PIXELS_AT_ONCE) : len; // How many this pass?
+
+    _data16.value = *data++;
+    _data32.value = 0;
+    _data32.lsb = _data16.msb;
+    _data32.lsb_2 = _data16.lsb;
+
+    LCD_CAM.lcd_cmd_val.val = _data32.value;
+    WAIT_LCD_NOT_BUSY;
+    LCD_CAM.lcd_user.val = LCD_CAM_LCD_CMD | LCD_CAM_LCD_CMD_2_CYCLE_EN | LCD_CAM_LCD_UPDATE_REG | LCD_CAM_LCD_START;
+
+    _data16.value = *data++;
+    _data32.value = 0;
+    _data32.lsb = _data16.msb;
+    _data32.lsb_2 = _data16.lsb;
+
+    l = xferLen - 2;
+    l <<= 1;
+    for (uint32_t i = 0; i < l;)
     {
-      xferLen = (len >= LCD_MAX_PIXELS_AT_ONCE) ? (LCD_MAX_PIXELS_AT_ONCE) : len; // How many this pass?
-
       _data16.value = *data++;
-      _data32.value = 0;
-      _data32.lsb = _data16.msb;
-      _data32.lsb_2 = _data16.lsb;
-
-      LCD_CAM.lcd_cmd_val.val = _data32.value;
-      WAIT_LCD_NOT_BUSY;
-      LCD_CAM.lcd_user.val = LCD_CAM_LCD_CMD | LCD_CAM_LCD_CMD_2_CYCLE_EN | LCD_CAM_LCD_UPDATE_REG | LCD_CAM_LCD_START;
-
-      _data16.value = *data++;
-      _data32.value = 0;
-      _data32.lsb = _data16.msb;
-      _data32.lsb_2 = _data16.lsb;
-
-      l = xferLen - 2;
-      l <<= 1;
-      *(uint32_t *)_dmadesc = ((l + 3) & (~3)) | l << 12 | 0xC0000000;
-      _dmadesc->buffer = data;
-      _dmadesc->next = nullptr;
-      gdma_start(_dma_chan, (intptr_t)(_dmadesc));
-      LCD_CAM.lcd_cmd_val.val = _data32.value;
-      LCD_CAM.lcd_user.val = LCD_CAM_LCD_ALWAYS_OUT_EN | LCD_CAM_LCD_DOUT | LCD_CAM_LCD_CMD | LCD_CAM_LCD_CMD_2_CYCLE_EN | LCD_CAM_LCD_UPDATE_REG;
-
-      data += xferLen - 2;
-      len -= xferLen;
-
-      WAIT_LCD_NOT_BUSY;
-      LCD_CAM.lcd_user.val = LCD_CAM_LCD_ALWAYS_OUT_EN | LCD_CAM_LCD_DOUT | LCD_CAM_LCD_CMD | LCD_CAM_LCD_CMD_2_CYCLE_EN | LCD_CAM_LCD_START;
+      _buffer[i++] = _data16.msb;
+      _buffer[i++] = _data16.lsb;
     }
-  }
-  else
-  {
-    while (len > (USE_DMA_THRESHOLD)) // While pixels remain
-    {
-      xferLen = (len >= LCD_MAX_PIXELS_AT_ONCE) ? (LCD_MAX_PIXELS_AT_ONCE) : len; // How many this pass?
 
-      _data16.value = *data++;
-      _data32.value = 0;
-      _data32.lsb = _data16.msb;
-      _data32.lsb_2 = _data16.lsb;
+    *(uint32_t *)_dmadesc = ((l + 3) & (~3)) | l << 12 | 0xC0000000;
+    _dmadesc->buffer = _buffer32;
+    _dmadesc->next = nullptr;
+    gdma_start(_dma_chan, (intptr_t)(_dmadesc));
+    LCD_CAM.lcd_cmd_val.val = _data32.value;
+    LCD_CAM.lcd_user.val = LCD_CAM_LCD_ALWAYS_OUT_EN | LCD_CAM_LCD_DOUT | LCD_CAM_LCD_CMD | LCD_CAM_LCD_CMD_2_CYCLE_EN | LCD_CAM_LCD_UPDATE_REG;
 
-      LCD_CAM.lcd_cmd_val.val = _data32.value;
-      WAIT_LCD_NOT_BUSY;
-      LCD_CAM.lcd_user.val = LCD_CAM_LCD_CMD | LCD_CAM_LCD_CMD_2_CYCLE_EN | LCD_CAM_LCD_UPDATE_REG | LCD_CAM_LCD_START;
+    len -= xferLen;
 
-      _data16.value = *data++;
-      _data32.value = 0;
-      _data32.lsb = _data16.msb;
-      _data32.lsb_2 = _data16.lsb;
-
-      l = xferLen - 2;
-      l <<= 1;
-      for (uint32_t i = 0; i < l;)
-      {
-        _data16.value = *data++;
-        _buffer[i++] = _data16.msb;
-        _buffer[i++] = _data16.lsb;
-      }
-
-      *(uint32_t *)_dmadesc = ((l + 3) & (~3)) | l << 12 | 0xC0000000;
-      _dmadesc->buffer = _buffer32;
-      _dmadesc->next = nullptr;
-      gdma_start(_dma_chan, (intptr_t)(_dmadesc));
-      LCD_CAM.lcd_cmd_val.val = _data32.value;
-      LCD_CAM.lcd_user.val = LCD_CAM_LCD_ALWAYS_OUT_EN | LCD_CAM_LCD_DOUT | LCD_CAM_LCD_CMD | LCD_CAM_LCD_CMD_2_CYCLE_EN | LCD_CAM_LCD_UPDATE_REG;
-
-      len -= xferLen;
-
-      WAIT_LCD_NOT_BUSY;
-      LCD_CAM.lcd_user.val = LCD_CAM_LCD_ALWAYS_OUT_EN | LCD_CAM_LCD_DOUT | LCD_CAM_LCD_CMD | LCD_CAM_LCD_CMD_2_CYCLE_EN | LCD_CAM_LCD_START;
-    }
+    WAIT_LCD_NOT_BUSY;
+    LCD_CAM.lcd_user.val = LCD_CAM_LCD_ALWAYS_OUT_EN | LCD_CAM_LCD_DOUT | LCD_CAM_LCD_CMD | LCD_CAM_LCD_CMD_2_CYCLE_EN | LCD_CAM_LCD_START;
   }
 
   while (len--)
@@ -746,9 +721,9 @@ void Arduino_ESP32LCD8::writeIndexedPixelsDouble(uint8_t *data, uint16_t *idx, u
 /**
  * @brief CS_HIGH
  *
- * @return INLINE
+ * @return GFX_INLINE
  */
-INLINE void Arduino_ESP32LCD8::CS_HIGH(void)
+GFX_INLINE void Arduino_ESP32LCD8::CS_HIGH(void)
 {
   if (_cs != GFX_NOT_DEFINED)
   {
@@ -759,9 +734,9 @@ INLINE void Arduino_ESP32LCD8::CS_HIGH(void)
 /**
  * @brief CS_LOW
  *
- * @return INLINE
+ * @return GFX_INLINE
  */
-INLINE void Arduino_ESP32LCD8::CS_LOW(void)
+GFX_INLINE void Arduino_ESP32LCD8::CS_LOW(void)
 {
   if (_cs != GFX_NOT_DEFINED)
   {
@@ -769,6 +744,5 @@ INLINE void Arduino_ESP32LCD8::CS_LOW(void)
   }
 }
 
+#endif // #if (!defined(ESP_ARDUINO_VERSION_MAJOR)) || (ESP_ARDUINO_VERSION_MAJOR < 3)
 #endif // #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S3)
-
-#endif // #if (ESP_ARDUINO_VERSION_MAJOR < 3)

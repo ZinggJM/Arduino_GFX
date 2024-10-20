@@ -11,6 +11,10 @@ Arduino_NV3041A::Arduino_NV3041A(
 
 bool Arduino_NV3041A::begin(int32_t speed)
 {
+  if (speed == GFX_NOT_DEFINED)
+  {
+    speed = 32000000UL; // NV3041A Maximum supported speed
+  }
   return Arduino_TFT::begin(speed);
 }
 
@@ -39,8 +43,7 @@ void Arduino_NV3041A::setRotation(uint8_t r)
     break;
   }
   _bus->beginWrite();
-  _bus->writeCommand(NV3041A_MADCTL);
-  _bus->write(r);
+  _bus->writeC8D8(NV3041A_MADCTL, r);
   _bus->endWrite();
 }
 

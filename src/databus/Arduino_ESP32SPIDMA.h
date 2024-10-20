@@ -4,9 +4,16 @@
 
 #if defined(ESP32)
 #include <driver/spi_master.h>
+#if (ESP_ARDUINO_VERSION_MAJOR >= 3)
+#include <esp_memory_utils.h>
+#endif
 
+#ifndef ESP32SPIDMA_MAX_PIXELS_AT_ONCE
 #define ESP32SPIDMA_MAX_PIXELS_AT_ONCE 1024
-#define DMA_CHANNEL SPI_DMA_CH_AUTO
+#endif
+#ifndef ESP32SPIDMA_DMA_CHANNEL
+#define ESP32SPIDMA_DMA_CHANNEL SPI_DMA_CH_AUTO
+#endif
 
 class Arduino_ESP32SPIDMA : public Arduino_DataBus
 {
@@ -24,6 +31,7 @@ public:
   void endWrite() override;
   void writeCommand(uint8_t) override;
   void writeCommand16(uint16_t) override;
+  void writeCommandBytes(uint8_t *data, uint32_t len) override;
   void write(uint8_t) override;
   void write16(uint16_t) override;
 
@@ -38,17 +46,18 @@ public:
 
   void writeIndexedPixels(uint8_t *data, uint16_t *idx, uint32_t len) override;
   void writeIndexedPixelsDouble(uint8_t *data, uint16_t *idx, uint32_t len) override;
+  void writeYCbCrPixels(uint8_t *yData, uint8_t *cbData, uint8_t *crData, uint16_t w, uint16_t h) override;
 
 protected:
   void flush_data_buf();
-  INLINE void WRITE8BIT(uint8_t d);
-  INLINE void WRITE9BIT(uint32_t d);
-  INLINE void DC_HIGH(void);
-  INLINE void DC_LOW(void);
-  INLINE void CS_HIGH(void);
-  INLINE void CS_LOW(void);
-  INLINE void POLL_START();
-  INLINE void POLL_END();
+  GFX_INLINE void WRITE8BIT(uint8_t d);
+  GFX_INLINE void WRITE9BIT(uint32_t d);
+  GFX_INLINE void DC_HIGH(void);
+  GFX_INLINE void DC_LOW(void);
+  GFX_INLINE void CS_HIGH(void);
+  GFX_INLINE void CS_LOW(void);
+  GFX_INLINE void POLL_START();
+  GFX_INLINE void POLL_END();
 
 private:
   int8_t _dc, _cs;
@@ -70,9 +79,16 @@ private:
 
   union
   {
-    uint8_t* _buffer;
-    uint16_t* _buffer16;
-    uint32_t* _buffer32;
+    uint8_t *_buffer;
+    uint16_t *_buffer16;
+    uint32_t *_buffer32;
+  };
+
+  union
+  {
+    uint8_t *_2nd_buffer;
+    uint16_t *_2nd_buffer16;
+    uint32_t *_2nd_buffer32;
   };
 
   uint16_t _data_buf_bit_idx = 0;

@@ -32,7 +32,37 @@ gfx->setTextColor(RED);
 gfx->println("Hello World!");
 ```
 
-## U8g2 Font Support
+## Get Started
+
+If you are new on this library, I always recommend try Library Example PDQgraphicstest first. You can find it at Arduino IDE -> File menu -> Examples -> GFX Library for Arduino -> PDQgraphicstest.
+
+After open the example, you can see many tabs. The first is PDQgraphicstest, the main program. Start from the second tab, it is related header files, Arduino_GFX_databus.h, ... etc.
+
+### Using supported Dev Device
+
+If you are using below listed support dev device, simply select the Arduino_GFX_dev_device.h and uncomment the define of your dev device. E.g. if you are using LilyGo T-Deck:
+
+```C
+...
+// #define JC3248W535
+#define LILYGO_T_DECK
+// #define LILYGO_T_DISPLAY
+...
+```
+
+### Custom device and display
+
+If you are not using supported dev device:
+
+- Default DataBus is using Arduino SPI. Other DataBus can modify in Arduino_GFX_databus.h.
+
+- Default Display is using ILI9341 LCD. Other Display can modify in Arduino_GFX_display.h.
+
+## More Details
+
+<details>
+
+<summary>U8g2 Font Support</summary>
 
 [U8g2](https://github.com/olikraus/u8g2.git) provided various font type and stored in compressed format. So U8g2 font gives more UI design possibilities and still can fit in the MCU limited storage space. Using U8g2 font in Arduino_GFX simply include U8g2lib.h before Arduino_GFX_Library.h:
 
@@ -117,7 +147,7 @@ otf2bdf Cubic_11_1.013_R.ttf -p 9 -o Cubic_11_1.013_R.bdf
 bdfconv -v -f 1 -b 1 -m "0-4294967295" Cubic_11_1.013_R.bdf -o u8g2_font_cubic11_h_cjk.h -n u8g2_font_cubic11_h_cjk
 ```
 
-#### [QuanPixel](https://diaowinner.itch.io/galmuri-extended):
+#### [QuanPixel](https://diaowinner.itch.io/galmuri-extended)
 
 ##### u8g2_font_quan7_h_cjk
 
@@ -174,7 +204,11 @@ bdfconv -v -f 1 -M chinese4.list unifont_jp-14.0.02.bdf -o u8g2_font_unifont_t_c
 bdfconv -v -f 1 -m "32-127,4352-4607,11904-12255,12288-19903,19968-40943,43360-43391,44032-55203,55216-55295,63744-64255,65072-65103,65280-65519" unifont_jp-14.0.02.bdf -o u8g2_font_unifont_t_cjk.h -n u8g2_font_unifont_t_cjk
 ```
 
-## Performance
+</details>
+
+<details>
+
+<summary>Performance</summary>
 
 This library is not putting speed at the first priority, but still paid much effort to make the display look smooth.
 
@@ -214,7 +248,13 @@ Below are some figures compare with other 3 Arduino common display libraries.
 * No read operation. Since not all display provide read back graphic memories API, Arduino_GFX skip all read operations. It can reduce the library size footprint and sometimes reduce the operation time.
 * Tailor-made data bus classes. Arduino_GFX decouple data bus operation from display driver, it is more easy to write individual data bus class for each platform.
 
-## Various data bus interfaces
+</details>
+
+<details>
+
+<summary>Supported Interfaces</summary>
+
+### Various data bus interfaces
 
 Arduino_GFX utilizes Arduino Built-in SPI class to support 8-bit SPI for most platforms.
 
@@ -224,21 +264,26 @@ Larger displays most likely do not support standalone SPI since it is not fast e
 
 Some larger display require RGB + 3-bit SPI combo interface, This interface requies at most 3(9-bit SPI) + 4(CS, CD, WR, RD) + 24(RBG888) = 31 pins. Most dev board do not have enough GPIO to support this. Arduino_GFX is stick to RGB565 color, so RGB666 and RGB888 require some connection hack. E.g. RGB666 connect R5 and R6 together, B5 and B6 together to become RGB565. Then the least GPIO requirement can become 3(9-bit SPI) + 2(CD, WR) + 16(RBG565) = 21 pins. **Remember always pull down CS pin and always pull up RD pin.**
 
-## Currently Supported data bus [[Wiki](https://github.com/moononournation/Arduino_GFX/wiki/Data-Bus-Class)]
+### Currently Supported data bus [[Wiki](https://github.com/moononournation/Arduino_GFX/wiki/Data-Bus-Class)]
 
 * 8-bit and 9-bit hardware SPI (ESP32SPI)
 * 8-bit hardware SPI (HWSPI, ESP8266SPI, mbedSPI, NRFXSPI, RPiPicoSPI)
 * 8-bit and 9-bit software SPI (SWSPI)
-* 8-bit parallel interface (SWPAR8, AVRPAR8, ESP32PAR8, ESP32S2PAR8, RPiPicoPAR8, RTLPAR8, STM32PAR8)
+* 8-bit parallel interface (SWPAR8, AVRPAR8, ESP32LCD8, ESP32PAR8, ESP32S2PAR8, RPiPicoPAR8, RTLPAR8, STM32PAR8)
 * 16-bit parallel interface (ESP32LCD16, ESP32PAR16, ESP32S2PAR16, RPiPicoPAR16)
 * RGB565+SPI interface (ESP32RGBPanel)
 
-## Tobe Support data bus (Sponsors can make it happen)
+#### Note
 
-* Arduino ATMega2560 dual 8-bit Port form 16-bit parallel interface
-* FastLED
+ESP32LCD8, ESP32LCD16 and ESP32RGBPanel only supported by arduino-esp32 v2.x and no longer support in v3.0.
 
-## Currently Supported Dev Board
+</details>
+
+<details>
+
+<summary>Supported Dev Board</summary>
+
+### Currently Supported Dev Board
 
 * Ameba RTL8722DM Board (AMB 21)
 * Ameba RTL8722DM MINI Board (AMB 23)
@@ -263,7 +308,13 @@ Some larger display require RGB + 3-bit SPI combo interface, This interface requ
 * [Seeed Studio XIAO ESP32C3](https://www.seeedstudio.com/Seeed-XIAO-ESP32C3-p-5431.html)
 * [Seeed Studio XIAO ESP32S3](https://www.seeedstudio.com/XIAO-ESP32S3-p-5627.html)
 
-## Currently Supported Dev Device [[Wiki](https://github.com/moononournation/Arduino_GFX/wiki/Dev-Device-Declaration)]
+</details>
+
+<details>
+
+<summary>Supported Dev Device</summary>
+
+### Currently Supported Dev Device [[Wiki](https://github.com/moononournation/Arduino_GFX/wiki/Dev-Device-Declaration)]
 
 * [ESP32-1732S019](https://www.aliexpress.com/item/1005005059421229.html) [[demo video](https://youtube.com/shorts/VS4Qb3g2dWk)] [[LVGL demo video](https://youtu.be/V5xib6OnWiM)]
 * ESP32-2432S028
@@ -284,12 +335,15 @@ Some larger display require RGB + 3-bit SPI combo interface, This interface requ
 * [LILYGO T-Display](https://www.lilygo.cc/products/lilygo®-ttgo-t-display-1-14-inch-lcd-esp32-control-board)
 * [LILYGO T-Display-S3](https://www.lilygo.cc/products/t-display-s3) [[demo video](https://youtu.be/kpRC64QNQAo)]
 * [LILYGO T-Display-S3 AMOLED](https://www.lilygo.cc/products/t-display-s3-amoled) [[demo video](https://youtu.be/NvOGJAMlh1M)]
+* [LILYGO T-Display-S3 AMOLED](https://www.lilygo.cc/products/t-display-s3-amoled-1-64) [[demo video](https://youtu.be/5O3fQ1xNsrg)][[LVGL demo video](https://youtu.be/6UEaxWfxm9g)]
+* [T-Display S3 Long](https://www.lilygo.cc/products/t-display-s3-long)[[LVGL demo video](https://youtu.be/OuxLFwxvcVc)]
 * [LILYGO T-Display-s3-Pro](https://www.lilygo.cc/products/t-display-s3-pro) [[demo video](https://youtube.com/shorts/PE-GKTzbdP8)]
 * [LILYGO T-QT](https://www.lilygo.cc/products/t-qt-v1-1) [[demo video](https://youtube.com/shorts/V1MCQ1tQ8PM)]
 * [LILYGO T-RGB](https://www.lilygo.cc/products/t-rgb) [[LVGL demo video](https://youtu.be/BKEl_pWp_qQ)]
 * [LILYGO T-Track](https://www.lilygo.cc/products/t-track) [[demo video](https://youtu.be/6wmUhp-5eMg)][[LVGL demo video](https://youtu.be/wQjMu5JZSkg)]
 * [LILYGO T-Watch](http://www.lilygo.cn/prod_view.aspx?TypeId=50053&Id=1123)
 * [LILYGO T-Watch 2021](https://www.lilygo.cc/products/t-watch-2021)
+* [LILYGO T4 S3](https://www.lilygo.cc/products/t4-s3)[[LVGL demo video](https://youtu.be/h4vXEYrDERM)]
 * [M5Stack Core Family](https://shop.m5stack.com/collections/m5-controllers/CORE)
 * [M5Stack AtomS3](https://shop.m5stack.com/products/atoms3-dev-kit-w-0-85-inch-screen)[[demo video](https://youtu.be/8u4TwZHmnN0)]
 * [Makerfabs ESP32 3.5" TFT Touch with Camera](https://www.makerfabs.com/esp32-3.5-inch-tft-touch-capacitive-with-camera.html)
@@ -307,7 +361,13 @@ Some larger display require RGB + 3-bit SPI combo interface, This interface requ
 * [wireless-tag ZX3D95CE01S-TR](https://github.com/wireless-tag-com/ZX3D95CE01S-TR-4848) [[demo video](https://www.youtube.com/shorts/5u6_C-krK2Q)]
 * [QM Smart Panlee 7.0 inch serial screen ZX7D00CE01S](http://en.smartpanle.com/product-item-19.html) [[demo video](https://youtu.be/r-zAMUzpkGE)]
 
-## Currently Supported Display [[Wiki](https://github.com/moononournation/Arduino_GFX/wiki/Display-Class)]
+</details>
+
+<details>
+
+<summary>Supported Display</summary>
+
+### Currently Supported Display [[Wiki](https://github.com/moononournation/Arduino_GFX/wiki/Display-Class)]
 
 * GC9A01 240x240 round display [[demo video](https://youtu.be/kJrAFm20-zg)]
 * GC9106 80x160 [[demo video](https://youtu.be/RToGeeb1jxQ)]
@@ -344,7 +404,6 @@ Some larger display require RGB + 3-bit SPI combo interface, This interface requ
 * SSD1331 96x64 [[demo video](https://youtu.be/v20b1A_KDcQ)]
 * SSD1351 128x128 [[demo video](https://youtu.be/5TIM-qMVBNQ)]
 * SSD1351 128x96
-* ST7262 800x480 [[demo video](https://youtu.be/VvpILAVyPt8)]
 * ST7735 128x160 (various tabs) [[demo video](https://youtu.be/eRBSSD_N9II)]
 * ST7735 128x128 (various tabs) [[demo video](https://youtu.be/6rueSV2Ee6c)]
 * ST7735 80x160 [[demo video](https://youtu.be/qESHDuYo_Mk)]
@@ -357,37 +416,53 @@ Some larger display require RGB + 3-bit SPI combo interface, This interface requ
 * ST7796 320x480 [[demo video](https://youtu.be/hUL-RuG4MAQ)]
 * WEA2012 356x400 [[demo video](https://youtube.com/shorts/neDyijFrfQY)] [[LVGL demo video](https://youtube.com/shorts/z9Z_u0xg_as)]
 
-## Tobe Support Display (Sponsors can make it happen)
+### Tobe Support Display (Sponsors can make it happen)
 
-* FastLED Martix supported by co-operate with Canvas
 * Mono display supported by co-operate with Canvas
 * Multi-color e-ink display supported by co-operate with Canvas
 
-## Canvas (framebuffer) [[Wiki](https://github.com/moononournation/Arduino_GFX/wiki/Canvas-Class)]
+</details>
 
-* Canvas (16-bit pixel)
-* Canvas_Indexed (half memory space)
-* Canvas_3bit (1/4 memory space framebuffer)
-* Canvas_Mono (1/16 memory space framebuffer)
+<details>
 
-## LVGL Support
+<summary>Canvas (framebuffer)</summary>
 
-3 LVGL demo provide in examples folder:
+### Canvas Class [[Wiki](https://github.com/moononournation/Arduino_GFX/wiki/Canvas-Class)]
+
+* Arduino_Canvas (16-bit pixel)
+* Arduino_Canvas_3bit (1/4 memory space of 16-bit pixel)
+* Arduino_Canvas_Indexed (half memory space of 16-bit pixel)
+* Arduino_Canvas_Mono (1/16 memory space of 16-bit pixel)
+
+</details>
+
+<details>
+
+<summary>LVGL Support</summary>
+
+### 3 LVGL demo in Library Examples
 
 * LvglBenchmark [[demo video](https://youtu.be/75Qx-UEgabY)]
 * LvglHelloWorld
 * LvglWidgets
 
-## Feature wishlist (Sponsors can make it happen)
+</details>
 
-* Set text box
-* Round display mode (skip draw corner area)
-* Canvas to FastLED
+<details>
+
+<summary>Feature Wishlist</summary>
+
+### Sponsors can make it happen
+
 * Print color Emoji Characters
 * Load bitmap font files from flash / SD
-* Fill Gradient #128
+* Fill Gradient (Discussion #128)
 
-## Using source code come from
+</details>
+
+<details>
+
+<summary>Using source code come from</summary>
 
 * <https://github.com/adafruit/Adafruit-GFX-Library.git>
 * <https://github.com/adafruit/Adafruit_ILI9341.git>
@@ -407,6 +482,10 @@ Some larger display require RGB + 3-bit SPI combo interface, This interface requ
 * <https://github.com/nopnop2002/esp-idf-parallel-tft.git>
 * <https://github.com/olikraus/u8g2.git>
 
-## Sponsor vs Support
+</details>
 
-As you may already aware there are seldom sponsors in this project. Convert it in terms of man power, it is much lower than a manhour each month. So don't expect too much on the support. Expecially the feature not realted to my planned maker projects ;>
+## Sponsorship vs Support
+
+As you may already aware there are lack of sponsorship in this project. Convert the funding in terms of man power, it is much lower than 1 man hour per month. So don't expect too much on the support. Expecially the features not realted to my planned maker projects ;>
+
+For the same reason, Arduino_GFX only focus on the Arduino IDE support. Any other IDE, e.g. PlatformIO, if you found an issue at that IDE but normal at Arduino IDE, please direct report to that IDE for better support.

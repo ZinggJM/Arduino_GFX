@@ -19,6 +19,7 @@ public:
   void endWrite() override;
   void writeCommand(uint8_t) override;
   void writeCommand16(uint16_t) override;
+  void writeCommandBytes(uint8_t *data, uint32_t len) override;
   void write(uint8_t) override;
   void write16(uint16_t) override;
   void writeRepeat(uint16_t p, uint32_t len) override;
@@ -34,12 +35,12 @@ public:
   void writeIndexedPixelsDouble(uint8_t *data, uint16_t *idx, uint32_t len) override;
 
 private:
-  INLINE void WRITE(uint8_t d);
-  INLINE void WRITE16(uint16_t d);
-  INLINE void DC_HIGH(void);
-  INLINE void DC_LOW(void);
-  INLINE void CS_HIGH(void);
-  INLINE void CS_LOW(void);
+  GFX_INLINE void WRITE(uint8_t d);
+  GFX_INLINE void WRITE16(uint16_t d);
+  GFX_INLINE void DC_HIGH(void);
+  GFX_INLINE void DC_LOW(void);
+  GFX_INLINE void CS_HIGH(void);
+  GFX_INLINE void CS_LOW(void);
 
   int8_t _dc, _cs;
 

@@ -8,18 +8,21 @@
 
 #include "Arduino_DataBus.h"
 
+#ifndef RPIPICOSPI_MAX_PIXELS_AT_ONCE
 #define RPIPICOSPI_MAX_PIXELS_AT_ONCE 32
+#endif
 
 class Arduino_RPiPicoSPI : public Arduino_DataBus
 {
 public:
-  Arduino_RPiPicoSPI(int8_t dc = GFX_NOT_DEFINED, int8_t cs = GFX_NOT_DEFINED, int8_t sck = PIN_SPI0_SCK, int8_t mosi = PIN_SPI0_MOSI, int8_t miso = PIN_SPI0_MISO, spi_inst_t *spi = spi0); // Constructor
+  Arduino_RPiPicoSPI(int8_t dc = GFX_NOT_DEFINED, int8_t cs = GFX_NOT_DEFINED, int8_t sck = 18, int8_t mosi = 19, int8_t miso = 16, spi_inst_t *spi = spi0); // Constructor
 
   bool begin(int32_t speed = GFX_NOT_DEFINED, int8_t dataMode = GFX_NOT_DEFINED) override;
   void beginWrite() override;
   void endWrite() override;
   void writeCommand(uint8_t) override;
   void writeCommand16(uint16_t) override;
+  void writeCommandBytes(uint8_t *data, uint32_t len) override;
   void write(uint8_t) override;
   void write16(uint16_t) override;
   void writeRepeat(uint16_t p, uint32_t len) override;
@@ -33,13 +36,13 @@ public:
 protected:
 
 private:
-  INLINE void WRITE(uint8_t d);
-  INLINE void WRITE16(uint16_t d);
-  INLINE void WRITEBUF(uint8_t *buf, size_t count);
-  INLINE void DC_HIGH(void);
-  INLINE void DC_LOW(void);
-  INLINE void CS_HIGH(void);
-  INLINE void CS_LOW(void);
+  GFX_INLINE void WRITE(uint8_t d);
+  GFX_INLINE void WRITE16(uint16_t d);
+  GFX_INLINE void WRITEBUF(uint8_t *buf, size_t count);
+  GFX_INLINE void DC_HIGH(void);
+  GFX_INLINE void DC_LOW(void);
+  GFX_INLINE void CS_HIGH(void);
+  GFX_INLINE void CS_LOW(void);
 
   int8_t _dc, _cs;
   int8_t _sck, _mosi, _miso;

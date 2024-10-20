@@ -9,7 +9,9 @@
 #include "Arduino_DataBus.h"
 
 #if !defined(LITTLE_FOOT_PRINT)
+#ifndef SPI_MAX_PIXELS_AT_ONCE
 #define SPI_MAX_PIXELS_AT_ONCE 32
+#endif
 #endif
 
 // HARDWARE CONFIG ---------------------------------------------------------
@@ -32,26 +34,27 @@ public:
   void endWrite() override;
   void writeCommand(uint8_t) override;
   void writeCommand16(uint16_t) override;
+  void writeCommandBytes(uint8_t *data, uint32_t len) override;
   void write(uint8_t) override;
   void write16(uint16_t) override;
   void writeRepeat(uint16_t p, uint32_t len) override;
+  void writeBytes(uint8_t *data, uint32_t len) override;
   void writePixels(uint16_t *data, uint32_t len) override;
 
 #if !defined(LITTLE_FOOT_PRINT)
-  void writeBytes(uint8_t *data, uint32_t len) override;
   void writePattern(uint8_t *data, uint8_t len, uint32_t repeat) override;
 #endif // !defined(LITTLE_FOOT_PRINT)
 
 private:
-  INLINE void WRITE(uint8_t d);
+  GFX_INLINE void WRITE(uint8_t d);
 #if !defined(LITTLE_FOOT_PRINT)
-  INLINE void WRITE16(uint16_t d);
-  INLINE void WRITEBUF(uint8_t *buf, size_t count);
+  GFX_INLINE void WRITE16(uint16_t d);
+  GFX_INLINE void WRITEBUF(uint8_t *buf, size_t count);
 #endif // !defined(LITTLE_FOOT_PRINT)
-  INLINE void DC_HIGH(void);
-  INLINE void DC_LOW(void);
-  INLINE void CS_HIGH(void);
-  INLINE void CS_LOW(void);
+  GFX_INLINE void DC_HIGH(void);
+  GFX_INLINE void DC_LOW(void);
+  GFX_INLINE void CS_HIGH(void);
+  GFX_INLINE void CS_LOW(void);
 
 
   int8_t _dc, _cs;

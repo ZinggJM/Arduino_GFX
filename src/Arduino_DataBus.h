@@ -7,15 +7,14 @@
 
 #include <Arduino.h>
 
+#include "YCbCr2RGB.h"
+
 #define GFX_SKIP_OUTPUT_BEGIN -2
 #define GFX_NOT_DEFINED -1
 #define GFX_STR_HELPER(x) #x
 #define GFX_STR(x) GFX_STR_HELPER(x)
 
-#if defined(ARDUINO_AVR_MEGA2560)
-#define USE_FAST_PINIO ///< Use direct PORT register access
-typedef uint8_t ARDUINOGFX_PORT_t;
-#elif defined(__AVR__)
+#if defined(__AVR__)
 #define LITTLE_FOOT_PRINT // reduce program size for limited flash MCU
 #define USE_FAST_PINIO    ///< Use direct PORT register access
 typedef uint8_t ARDUINOGFX_PORT_t;
@@ -113,16 +112,12 @@ typedef volatile ARDUINOGFX_PORT_t *PORTreg_t;
 #define SPI_DEFAULT_FREQ 24000000 ///< Default SPI data clock frequency
 #endif
 
-#ifndef TWI_BUFFER_LENGTH
-#define TWI_BUFFER_LENGTH 32
-#endif
-
 #ifndef UNUSED
 #define UNUSED(x) (void)(x)
 #endif
 #define ATTR_UNUSED __attribute__((unused))
 
-#define MSB_16(val) (((val)&0xFF00) >> 8) | (((val)&0xFF) << 8)
+#define MSB_16(val) (((val) & 0xFF00) >> 8) | (((val) & 0xFF) << 8)
 #define MSB_16_SET(var, val) \
   {                          \
     (var) = MSB_16(val);     \
@@ -142,13 +137,13 @@ typedef volatile ARDUINOGFX_PORT_t *PORTreg_t;
   }
 
 #if !defined(LITTLE_FOOT_PRINT)
-#define INLINE __attribute__((always_inline)) inline
+#define GFX_INLINE __attribute__((always_inline)) inline
 #else
-#define INLINE inline
+#define GFX_INLINE inline
 #endif // !defined(LITTLE_FOOT_PRINT)
 
-#if (ESP_ARDUINO_VERSION_MAJOR < 3)
 #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S3)
+#if (!defined(ESP_ARDUINO_VERSION_MAJOR)) || (ESP_ARDUINO_VERSION_MAJOR < 3)
 #include <esp_lcd_panel_io.h>
 #include <esp_lcd_panel_io_interface.h>
 #include <esp_pm.h>
@@ -234,14 +229,15 @@ struct lcd_panel_io_i80_t
   } flags;
   lcd_i80_trans_descriptor_t trans_pool[]; // Transaction pool
 };
+#endif // #if (!defined(ESP_ARDUINO_VERSION_MAJOR)) || (ESP_ARDUINO_VERSION_MAJOR < 3)
 #endif // #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S3)
-#endif // #if (ESP_ARDUINO_VERSION_MAJOR < 3)
 
 typedef enum
 {
   BEGIN_WRITE,
   WRITE_COMMAND_8,
   WRITE_COMMAND_16,
+  WRITE_COMMAND_BYTES,
   WRITE_DATA_8,
   WRITE_DATA_16,
   WRITE_BYTES,
@@ -275,6 +271,7 @@ public:
   virtual void endWrite() = 0;
   virtual void writeCommand(uint8_t c) = 0;
   virtual void writeCommand16(uint16_t c) = 0;
+  virtual void writeCommandBytes(uint8_t *data, uint32_t len) = 0;
   virtual void write(uint8_t) = 0;
   virtual void write16(uint16_t) = 0;
   virtual void writeC8D8(uint8_t c, uint8_t d);
@@ -283,6 +280,7 @@ public:
   virtual void writeC8D16D16(uint8_t c, uint16_t d1, uint16_t d2);
   virtual void writeC8D16D16Split(uint8_t c, uint16_t d1, uint16_t d2);
   virtual void writeRepeat(uint16_t p, uint32_t len) = 0;
+  virtual void writeBytes(uint8_t *data, uint32_t len) = 0;
   virtual void writePixels(uint16_t *data, uint32_t len) = 0;
 
   void sendCommand(uint8_t c);
@@ -291,11 +289,12 @@ public:
   void sendData16(uint16_t d);
 
 #if !defined(LITTLE_FOOT_PRINT)
+  virtual void write16bitBeRGBBitmapR1(uint16_t *bitmap, int16_t w, int16_t h);
   virtual void batchOperation(const uint8_t *operations, size_t len);
-  virtual void writeBytes(uint8_t *data, uint32_t len) = 0;
   virtual void writePattern(uint8_t *data, uint8_t len, uint32_t repeat);
   virtual void writeIndexedPixels(uint8_t *data, uint16_t *idx, uint32_t len);
   virtual void writeIndexedPixelsDouble(uint8_t *data, uint16_t *idx, uint32_t len);
+  virtual void writeYCbCrPixels(uint8_t *yData, uint8_t *cbData, uint8_t *crData, uint16_t w, uint16_t h);
 #else
   void batchOperation(const uint8_t *operations, size_t len);
 #endif // !defined(LITTLE_FOOT_PRINT)

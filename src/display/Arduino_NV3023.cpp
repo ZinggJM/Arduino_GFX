@@ -44,21 +44,20 @@ void Arduino_NV3023::setRotation(uint8_t r)
   switch (_rotation)
   {
   case 1:
-    r = NV3023_MADCTL_MY | NV3023_MADCTL_MV | NV3023_MADCTL_BGR;
-    break;
+    r = NV3023_MADCTL_MY | NV3023_MADCTL_MV | NV3023_MADCTL_MX | NV3023_MADCTL_BGR;
+    break; 
   case 2:
-    r = NV3023_MADCTL_MY | NV3023_MADCTL_BGR;
-    break;
+    r = NV3023_MADCTL_MX  | NV3023_MADCTL_BGR;
+    break;   
   case 3:
-    r = NV3023_MADCTL_MX | NV3023_MADCTL_MV | NV3023_MADCTL_BGR;
-    break;
+    r =  NV3023_MADCTL_MV | NV3023_MADCTL_BGR;
+    break; 
   default: // case 0:
-    r = NV3023_MADCTL_MY | NV3023_MADCTL_MX | NV3023_MADCTL_BGR;
+    r = NV3023_MADCTL_MY  | NV3023_MADCTL_BGR;
     break;
   }
   _bus->beginWrite();
-  _bus->writeCommand(NV3023_MADCTL);
-  _bus->write(r);
+  _bus->writeC8D8(NV3023_MADCTL, r);
   _bus->endWrite();
 }
 

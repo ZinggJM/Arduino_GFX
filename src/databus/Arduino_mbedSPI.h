@@ -16,7 +16,9 @@
 
 #include "Arduino_DataBus.h"
 
+#ifndef MBEDSPI_MAX_PIXELS_AT_ONCE
 #define MBEDSPI_MAX_PIXELS_AT_ONCE 32
+#endif
 
 class Arduino_mbedSPI : public Arduino_DataBus
 {
@@ -28,6 +30,7 @@ public:
   void endWrite() override;
   void writeCommand(uint8_t) override;
   void writeCommand16(uint16_t) override;
+  void writeCommandBytes(uint8_t *data, uint32_t len) override;
   void write(uint8_t) override;
   void write16(uint16_t) override;
   void writeRepeat(uint16_t p, uint32_t len) override;
@@ -39,13 +42,13 @@ public:
   void writeBytes(uint8_t *data, uint32_t len) override;
 
 private:
-  INLINE void WRITE(uint8_t d);
-  INLINE void WRITE16(uint16_t d);
-  INLINE void WRITEBUF(uint8_t *buf, size_t count);
-  INLINE void DC_HIGH(void);
-  INLINE void DC_LOW(void);
-  INLINE void CS_HIGH(void);
-  INLINE void CS_LOW(void);
+  GFX_INLINE void WRITE(uint8_t d);
+  GFX_INLINE void WRITE16(uint16_t d);
+  GFX_INLINE void WRITEBUF(uint8_t *buf, size_t count);
+  GFX_INLINE void DC_HIGH(void);
+  GFX_INLINE void DC_LOW(void);
+  GFX_INLINE void CS_HIGH(void);
+  GFX_INLINE void CS_LOW(void);
 
   int8_t _dc, _cs;
   mbed::SPI *_dev;
