@@ -16,9 +16,11 @@ public:
   void endWrite() override;
   void writeCommand(uint8_t) override;
   void writeCommand16(uint16_t) override;
+  void writeCommandBytes(uint8_t *data, uint32_t len) override;
   void write(uint8_t) override;
   void write16(uint16_t) override;
   void writeRepeat(uint16_t p, uint32_t len) override;
+  void writeBytes(uint8_t *data, uint32_t len) override;
   void writePixels(uint16_t *data, uint32_t len) override;
 
 #if !defined(LITTLE_FOOT_PRINT)
@@ -26,7 +28,6 @@ public:
   void writeC8D16(uint8_t c, uint16_t d) override;
   void writeC8D16D16(uint8_t c, uint16_t d1, uint16_t d2) override;
   void writeC8D16D16Split(uint8_t c, uint16_t d1, uint16_t d2) override;
-  void writeBytes(uint8_t *data, uint32_t len) override;
 
   void writeIndexedPixels(uint8_t *data, uint16_t *idx, uint32_t len) override;
   void writeIndexedPixelsDouble(uint8_t *data, uint16_t *idx, uint32_t len) override;
@@ -34,48 +35,48 @@ public:
 
 protected:
 private:
-  INLINE void WRITE(uint8_t d);
-  INLINE void WRITE16(uint16_t d);
-  INLINE void WRITEREPEAT(uint16_t p, uint32_t len);
-  INLINE void DC_HIGH(void);
-  INLINE void DC_LOW(void);
-  INLINE void CS_HIGH(void);
-  INLINE void CS_LOW(void);
-  INLINE void WR_HIGH(void);
-  INLINE void WR_LOW(void);
+  GFX_INLINE void WRITE(uint8_t d);
+  GFX_INLINE void WRITE16(uint16_t d);
+  GFX_INLINE void WRITEREPEAT(uint16_t p, uint32_t len);
+  GFX_INLINE void DC_HIGH(void);
+  GFX_INLINE void DC_LOW(void);
+  GFX_INLINE void CS_HIGH(void);
+  GFX_INLINE void CS_LOW(void);
+  GFX_INLINE void WR_HIGH(void);
+  GFX_INLINE void WR_LOW(void);
 
-  INLINE void D0_HIGH(void);
-  INLINE void D0_LOW(void);
-  INLINE void D1_HIGH(void);
-  INLINE void D1_LOW(void);
-  INLINE void D2_HIGH(void);
-  INLINE void D2_LOW(void);
-  INLINE void D3_HIGH(void);
-  INLINE void D3_LOW(void);
-  INLINE void D4_HIGH(void);
-  INLINE void D4_LOW(void);
-  INLINE void D5_HIGH(void);
-  INLINE void D5_LOW(void);
-  INLINE void D6_HIGH(void);
-  INLINE void D6_LOW(void);
-  INLINE void D7_HIGH(void);
-  INLINE void D7_LOW(void);
-  INLINE void D8_HIGH(void);
-  INLINE void D8_LOW(void);
-  INLINE void D9_HIGH(void);
-  INLINE void D9_LOW(void);
-  INLINE void D10_HIGH(void);
-  INLINE void D10_LOW(void);
-  INLINE void D11_HIGH(void);
-  INLINE void D11_LOW(void);
-  INLINE void D12_HIGH(void);
-  INLINE void D12_LOW(void);
-  INLINE void D13_HIGH(void);
-  INLINE void D13_LOW(void);
-  INLINE void D14_HIGH(void);
-  INLINE void D14_LOW(void);
-  INLINE void D15_HIGH(void);
-  INLINE void D15_LOW(void);
+  GFX_INLINE void D0_HIGH(void);
+  GFX_INLINE void D0_LOW(void);
+  GFX_INLINE void D1_HIGH(void);
+  GFX_INLINE void D1_LOW(void);
+  GFX_INLINE void D2_HIGH(void);
+  GFX_INLINE void D2_LOW(void);
+  GFX_INLINE void D3_HIGH(void);
+  GFX_INLINE void D3_LOW(void);
+  GFX_INLINE void D4_HIGH(void);
+  GFX_INLINE void D4_LOW(void);
+  GFX_INLINE void D5_HIGH(void);
+  GFX_INLINE void D5_LOW(void);
+  GFX_INLINE void D6_HIGH(void);
+  GFX_INLINE void D6_LOW(void);
+  GFX_INLINE void D7_HIGH(void);
+  GFX_INLINE void D7_LOW(void);
+  GFX_INLINE void D8_HIGH(void);
+  GFX_INLINE void D8_LOW(void);
+  GFX_INLINE void D9_HIGH(void);
+  GFX_INLINE void D9_LOW(void);
+  GFX_INLINE void D10_HIGH(void);
+  GFX_INLINE void D10_LOW(void);
+  GFX_INLINE void D11_HIGH(void);
+  GFX_INLINE void D11_LOW(void);
+  GFX_INLINE void D12_HIGH(void);
+  GFX_INLINE void D12_LOW(void);
+  GFX_INLINE void D13_HIGH(void);
+  GFX_INLINE void D13_LOW(void);
+  GFX_INLINE void D14_HIGH(void);
+  GFX_INLINE void D14_LOW(void);
+  GFX_INLINE void D15_HIGH(void);
+  GFX_INLINE void D15_LOW(void);
 
   int8_t _dc, _cs, _wr, _rd;
   int8_t _d0, _d1, _d2, _d3, _d4, _d5, _d6, _d7;

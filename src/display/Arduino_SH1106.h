@@ -3,8 +3,8 @@
 #ifndef _Arduino_SH1106_H_
 #define _Arduino_SH1106_H_
 
-#include <Arduino.h>
-#include <Arduino_GFX.h>
+#include "../Arduino_GFX.h"
+#include "../databus/Arduino_Wire.h"
 
 class Arduino_SH1106 : public Arduino_G
 {
@@ -21,6 +21,7 @@ public:
   void invertDisplay(bool);
   void displayOn();
   void displayOff();
+  void setBrightness(uint8_t brightness);
 
 protected:
   Arduino_DataBus *_bus;

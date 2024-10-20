@@ -4,6 +4,19 @@
  *
  * Capacitive touchscreen libraries
  * TouchLib: https://github.com/mmMicky/TouchLib.git
+ *
+ * #define CTS328_SLAVE_ADDRESS  (0x1A)
+ * #define L58_SLAVE_ADDRESS     (0X5A)
+ * #define CTS826_SLAVE_ADDRESS  (0X15)
+ * #define CTS820_SLAVE_ADDRESS  (0X15)
+ * #define CTS816S_SLAVE_ADDRESS (0X15)
+ * #define FT3267_SLAVE_ADDRESS  (0x38)
+ * #define FT5x06_ADDR           (0x38)
+ * #define GT911_SLAVE_ADDRESS1  (0X5D)
+ * #define GT911_SLAVE_ADDRESS2  (0X14)
+ * #define ZTW622_SLAVE1_ADDRESS (0x20)
+ * #define ZTW622_SLAVE2_ADDRESS (0x46)
+ *
  ******************************************************************************/
 
 /* uncomment for XPT2046 */
@@ -35,13 +48,17 @@ int16_t touch_max_x = 0, touch_max_y = 0;
 int16_t touch_raw_x = 0, touch_raw_y = 0;
 int16_t touch_last_x = 0, touch_last_y = 0;
 
+#if defined(TOUCH_SDA)
+#include <Wire.h>
+#endif
+
 #if defined(TOUCH_XPT2046)
 #include <XPT2046_Touchscreen.h>
 #include <SPI.h>
 XPT2046_Touchscreen ts(TOUCH_XPT2046_CS, TOUCH_XPT2046_INT);
 
 #elif defined(TOUCH_MODULE_ADDR) // TouchLib
-#include <Wire.h>
+
 #include <TouchLib.h>
 TouchLib touch(Wire, TOUCH_SDA, TOUCH_SCL, TOUCH_MODULE_ADDR);
 
@@ -86,21 +103,26 @@ void touch_init(int16_t w, int16_t h, uint8_t r)
     }
   }
 
-#if defined(TOUCH_XPT2046)
-  SPI.begin(TOUCH_XPT2046_SCK, TOUCH_XPT2046_MISO, TOUCH_XPT2046_MOSI, TOUCH_XPT2046_CS);
-  ts.begin();
-  ts.setRotation(TOUCH_XPT2046_ROTATION);
-
-#elif defined(TOUCH_MODULE_ADDR) // TouchLib
   // Reset touchscreen
-#if (TOUCH_RES > 0)
+#if defined(TOUCH_RES) && (TOUCH_RES > 0)
   pinMode(TOUCH_RES, OUTPUT);
   digitalWrite(TOUCH_RES, 0);
   delay(200);
   digitalWrite(TOUCH_RES, 1);
   delay(200);
 #endif
+
+#if defined(TOUCH_SDA)
   Wire.begin(TOUCH_SDA, TOUCH_SCL);
+#endif
+
+#if defined(TOUCH_XPT2046)
+  SPI.begin(TOUCH_XPT2046_SCK, TOUCH_XPT2046_MISO, TOUCH_XPT2046_MOSI, TOUCH_XPT2046_CS);
+  ts.begin();
+  ts.setRotation(TOUCH_XPT2046_ROTATION);
+
+#elif defined(TOUCH_MODULE_ADDR) // TouchLib
+
   touch.init();
 
 #endif // TouchLib

@@ -29,7 +29,7 @@
 #include "font/u8g2_font_unifont_t_cjk.h"
 #endif
 
-#define RGB565(r, g, b) ((((r)&0xF8) << 8) | (((g)&0xFC) << 3) | ((b) >> 3))
+#define RGB565(r, g, b) ((((r) & 0xF8) << 8) | (((g) & 0xFC) << 3) | ((b) >> 3))
 #define RGB16TO24(c) ((((uint32_t)c & 0xF800) << 8) | ((c & 0x07E0) << 5) | ((c & 0x1F) << 3))
 
 #define RGB565_BLACK RGB565(0, 0, 0)
@@ -50,7 +50,7 @@
 #define RGB565_WHITE RGB565(255, 255, 255)
 #define RGB565_ORANGE RGB565(255, 165, 0)
 #define RGB565_GREENYELLOW RGB565(173, 255, 41)
-#define RGB565_PINK RGB565(255, 130, 198)
+#define RGB565_PALERED RGB565(255, 130, 198)
 
 // Color definitions
 #ifndef DISABLE_COLOR_DEFINES
@@ -72,7 +72,7 @@
 #define WHITE RGB565_WHITE
 #define ORANGE RGB565_ORANGE
 #define GREENYELLOW RGB565_GREENYELLOW
-#define PINK RGB565_PINK
+#define PALERED RGB565_PALERED
 #endif
 
 // Many (but maybe not all) non-AVR board installs define macros
@@ -81,6 +81,9 @@
 
 #ifndef pgm_read_byte
 #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
+#endif
+#ifndef pgm_read_sbyte
+#define pgm_read_sbyte(addr) (*(const signed char *)(addr))
 #endif
 #ifndef pgm_read_word
 #define pgm_read_word(addr) (*(const unsigned short *)(addr))
@@ -134,7 +137,7 @@
 #endif
 
 #if !defined(ATTINY_CORE)
-INLINE GFXglyph *pgm_read_glyph_ptr(const GFXfont *gfxFont, uint8_t c)
+GFX_INLINE GFXglyph *pgm_read_glyph_ptr(const GFXfont *gfxFont, uint8_t c)
 {
 #ifdef __AVR__
   return &(((GFXglyph *)pgm_read_pointer(&gfxFont->glyph))[c]);
@@ -146,7 +149,7 @@ INLINE GFXglyph *pgm_read_glyph_ptr(const GFXfont *gfxFont, uint8_t c)
 #endif //__AVR__
 }
 
-INLINE uint8_t *pgm_read_bitmap_ptr(const GFXfont *gfxFont)
+GFX_INLINE uint8_t *pgm_read_bitmap_ptr(const GFXfont *gfxFont)
 {
 #ifdef __AVR__
   return (uint8_t *)pgm_read_pointer(&gfxFont->bitmap);
@@ -283,6 +286,8 @@ public:
   virtual void draw24bitRGBBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t h);
   virtual void draw24bitRGBBitmap(int16_t x, int16_t y, uint8_t *bitmap, int16_t w, int16_t h);
   virtual void drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg);
+
+  virtual void draw16bitBeRGBBitmapR1(int16_t x, int16_t y, uint16_t *bitmap, int16_t w, int16_t h);
 #endif // !defined(LITTLE_FOOT_PRINT)
 
   /**********************************************************************/
@@ -306,18 +311,10 @@ public:
   */
   void setTextBound(int16_t x, int16_t y, int16_t w, int16_t h)
   {
-    _min_text_x = (x < 0) ? 0 : x;
-    _min_text_y = (y < 0) ? 0 : y;
+    _min_text_x = x;
+    _min_text_y = y;
     _max_text_x = x + w - 1;
-    if (_max_text_x > _max_x)
-    {
-      _max_text_x = _max_x;
-    }
     _max_text_y = y + h - 1;
-    if (_max_text_y > _max_y)
-    {
-      _max_text_y = _max_y;
-    }
   }
 
   /**********************************************************************/

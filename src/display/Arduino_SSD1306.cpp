@@ -1,39 +1,6 @@
 // Arduino GFX display driver for SSD1306
 
-#include "Arduino_DataBus.h"
 #include "Arduino_SSD1306.h"
-
-// SSD1306 commands, See Datasheet
-#define SSD1306_MEMORYMODE 0x20
-#define SSD1306_COLUMNADDR 0x21
-#define SSD1306_PAGEADDR 0x22
-#define SSD1306_SETCONTRAST 0x81
-#define SSD1306_CHARGEPUMP 0x8D
-#define SSD1306_SEGREMAP 0xA0
-#define SSD1306_SEGREMAPINV 0xA1
-#define SSD1306_DISPLAYALLON_RESUME 0xA4
-#define SSD1306_NORMALDISPLAY 0xA6
-#define SSD1306_SETMULTIPLEX 0xA8
-#define SSD1306_DISPLAYOFF 0xAE
-#define SSD1306_DISPLAYON 0xAF
-#define SSD1306_COMSCANDEC 0xC8
-#define SSD1306_SETDISPLAYOFFSET 0xD3
-#define SSD1306_SETDISPLAYCLOCKDIV 0xD5
-#define SSD1306_SETPRECHARGE 0xD9
-#define SSD1306_SETCOMPINS 0xDA
-#define SSD1306_SETVCOMDETECT 0xDB
-
-#define SSD1306_SETLOWCOLUMN 0x00
-#define SSD1306_SETHIGHCOLUMN 0x10
-#define SSD1306_SETSTARTLINE 0x40
-
-#define SSD1306_RIGHT_HORIZONTAL_SCROLL 0x26
-#define SSD1306_LEFT_HORIZONTAL_SCROLL 0x27
-#define SSD1306_VERTICAL_AND_RIGHT_HORIZONTAL_SCROLL 0x29
-#define SSD1306_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL 0x2A
-#define SSD1306_DEACTIVATE_SCROLL 0x2E
-#define SSD1306_ACTIVATE_SCROLL 0x2F
-#define SSD1306_SET_VERTICAL_SCROLL_AREA 0xA3
 
 Arduino_SSD1306::Arduino_SSD1306(Arduino_DataBus *bus, int8_t rst, int16_t w, int16_t h)
     : Arduino_G(w, h), _bus(bus), _rst(rst)
@@ -44,7 +11,7 @@ Arduino_SSD1306::Arduino_SSD1306(Arduino_DataBus *bus, int8_t rst, int16_t w, in
 
 bool Arduino_SSD1306::begin(int32_t speed)
 {
-  Serial.println("SSD1306::begin()");
+  // println("SSD1306::begin()");
 
   if (!_bus)
   {
@@ -103,7 +70,7 @@ bool Arduino_SSD1306::begin(int32_t speed)
 
   static const uint8_t init_sequence[] = {
       BEGIN_WRITE,
-      WRITE_BYTES, 25,
+      WRITE_COMMAND_BYTES, 25,
       SSD1306_DISPLAYOFF,                          // 0xAE
       SSD1306_SETCONTRAST, _contrast,              // 0x81 nn
       SSD1306_NORMALDISPLAY,                       // 0xA6
@@ -125,9 +92,7 @@ bool Arduino_SSD1306::begin(int32_t speed)
       DELAY, 100,
 
       BEGIN_WRITE,
-      WRITE_BYTES, 2,
-      0x00, // Co = 0, D/C = 0
-      SSD1306_DISPLAYON,
+      WRITE_COMMAND_8, SSD1306_DISPLAYON, // 0xAF
       END_WRITE};
 
   _bus->batchOperation(init_sequence, sizeof(init_sequence));
@@ -135,18 +100,20 @@ bool Arduino_SSD1306::begin(int32_t speed)
   return true;
 }
 
-void Arduino_SSD1306::setBrightness(uint8_t brightness){
-    // _sendCommand(SSD1306_SETCONTRAST);
-    // ??? _sendCommand((brightness < 50) ? 0 : _contrast); ???
-    // _sendCommand((brightness < 50) ? 0 : 0x8f);
-}; // setBrightness
-
-void Arduino_SSD1306::drawBitmap(int16_t xStart, int16_t yStart, uint8_t *bitmap, int16_t w, int16_t h, uint16_t color, uint16_t bg)
+void Arduino_SSD1306::setBrightness(uint8_t /* brightness */)
 {
-  printf("SSD1306::drawBitmap %d/%d w:%d h:%d\n", xStart, yStart, w, h);
-  uint16_t bufferLength = TWI_BUFFER_LENGTH;
+  // _sendCommand(SSD1306_SETCONTRAST);
+  // ??? _sendCommand((brightness < 50) ? 0 : _contrast); ???
+  // _sendCommand((brightness < 50) ? 0 : 0x8f);
+}
+
+void Arduino_SSD1306::drawBitmap(int16_t xStart, int16_t yStart, uint8_t *bitmap, int16_t w, int16_t h, uint16_t /* color */, uint16_t /* bg */)
+{
+  // printf("SSD1306::drawBitmap %d/%d w:%d h:%d\n", xStart, yStart, w, h);
+  uint16_t count = w * ((h + 7) / 8);
 
 #if 0
+  // text output
   // print bitmap on Serial log
   for (int y = 0; y < h; y++)
   {
@@ -167,52 +134,18 @@ void Arduino_SSD1306::drawBitmap(int16_t xStart, int16_t yStart, uint8_t *bitmap
   Serial.println();
 #endif
 
-#if 1
-  // transfer the whole bitmap
-  for (uint8_t p = 0; p < _pages; p++)
-  {
-    uint8_t *pptr = bitmap + (p * w); // page start pointer
-    uint16_t bytesOut = 0;
+  // start page sequence
+  _bus->beginWrite();
+  uint8_t page_sequence[] = {
+      SSD1306_PAGEADDR, 0, 0xFF,
+      SSD1306_COLUMNADDR, _colStart, _colEnd};
+  _bus->writeCommandBytes(page_sequence, sizeof(page_sequence));
+  _bus->endWrite();
 
-    // start page sequence
-    _bus->beginWrite();
-    // ==> _bus->writeBytes( SSD1306_PAGEADDR);
+  _bus->beginWrite();
+  _bus->writeBytes(bitmap, count);
+  _bus->endWrite();
 
-    _bus->write(SSD1306_PAGEADDR);
-    _bus->write(0);   // Page start address
-    _bus->write(0x7); // Page end (not really, but works here)
-
-    _bus->write(SSD1306_COLUMNADDR);
-    _bus->write(_colStart);
-    _bus->write(_colEnd);
-     // set column
-    _bus->endWrite();
-
-    // send out page data
-    for (int x = 0; x < w; x++)
-    {
-      if (!bytesOut)
-      {
-        _bus->beginWrite();
-        _bus->write((uint8_t)0x40);
-        bytesOut = 1;
-      }
-
-      _bus->write(*pptr++);
-      bytesOut++;
-
-      if (bytesOut == bufferLength)
-      {
-        _bus->endWrite();
-        bytesOut = 0;
-      }
-    }
-    if (bytesOut)
-    {
-      _bus->endWrite();
-    }
-  }
-#endif
 } // drawBitmap()
 
 void Arduino_SSD1306::drawIndexedBitmap(int16_t, int16_t, uint8_t *, uint16_t *, int16_t, int16_t, int16_t)
@@ -220,7 +153,7 @@ void Arduino_SSD1306::drawIndexedBitmap(int16_t, int16_t, uint8_t *, uint16_t *,
   // println("SSD1306::Not Implemented drawIndexedBitmap()");
 }
 
-void Arduino_SSD1306::draw3bitRGBBitmap(int16_t, int16_t, uint8_t *bitmap, int16_t w, int16_t h)
+void Arduino_SSD1306::draw3bitRGBBitmap(int16_t, int16_t, uint8_t *, int16_t, int16_t)
 {
   // println("SSD1306::Not Implemented draw3bitRGBBitmap()");
 }
@@ -235,29 +168,17 @@ void Arduino_SSD1306::draw24bitRGBBitmap(int16_t, int16_t, uint8_t *, int16_t, i
   // println("SSD1306::Not Implemented draw24bitRGBBitmap()");
 }
 
-void Arduino_SSD1306::invertDisplay(bool i)
+void Arduino_SSD1306::invertDisplay(bool)
 {
-  // _bus->sendCommand(i ? ILI9488_INVON : ILI9488_INVOFF);
+  // println("SSD1306::Not Implemented invertDisplay()");
 }
 
 void Arduino_SSD1306::displayOn(void)
 {
-  uint8_t seq[] = {
-      BEGIN_WRITE,
-      WRITE_BYTES, 2,
-      0x00, // sequence of commands
-      SSD1306_DISPLAYON,
-      END_WRITE};
-  _bus->batchOperation(seq, sizeof(seq));
+  _bus->sendCommand(SSD1306_DISPLAYON);
 }
 
 void Arduino_SSD1306::displayOff(void)
 {
-  uint8_t seq[] = {
-      BEGIN_WRITE,
-      WRITE_BYTES, 2,
-      0x00, // sequence of commands
-      SSD1306_DISPLAYOFF,
-      END_WRITE};
-  _bus->batchOperation(seq, sizeof(seq));
+  _bus->sendCommand(SSD1306_DISPLAYOFF);
 }

@@ -68,7 +68,7 @@ void setup()
   tsa = ((w <= 176) || (h <= 160)) ? 1 : (((w <= 240) || (h <= 240)) ? 2 : 3); // text size A
   tsb = ((w <= 272) || (h <= 220)) ? 1 : 2;                                    // text size B
   tsc = ((w <= 220) || (h <= 220)) ? 1 : 2;                                    // text size C
-  ds = (w <= 160) ? 9 : 12;                                                    // digit size
+  ds = (w <= 160) ? 9 : ((w <= 280) ? 10 : 12);                                // digit size
 
 #ifdef GFX_BL
   pinMode(GFX_BL, OUTPUT);
@@ -362,7 +362,7 @@ int32_t testText()
   gfx->println(F("Size 8"));
 
   gfx->setTextSize(9);
-  gfx->setTextColor(PINK);
+  gfx->setTextColor(PALERED);
   gfx->println(F("Size 9"));
 
   return micros() - start;
