@@ -4,6 +4,8 @@
   See end of file for original header text and MIT license info.
 */
 
+// pre-select option for one of the devices I have
+#include "known_dev_device.h"
 /*******************************************************************************
  * Start of Arduino_GFX setting
  ******************************************************************************/
@@ -16,13 +18,15 @@
 /* OPTION 2: Manual define hardware */
 
 /* Step 1: Define pins in Arduino_GFX_databus.h */
-#include "Arduino_GFX_pins.h"
+//#include "Arduino_GFX_pins.h"
 
 /* Step 2: Uncomment your databus in Arduino_GFX_databus.h */
-#include "Arduino_GFX_databus.h"
+//#include "Arduino_GFX_databus.h"
 
 /* Step 3: Uncomment your display driver in Arduino_GFX_display.h */
-#include "Arduino_GFX_display.h"
+//#include "Arduino_GFX_display.h"
+
+#include "known_good.h"
 
 #endif /* Manual define hardware */
 /*******************************************************************************
@@ -40,6 +44,9 @@ uint8_t tsa, tsb, tsc, ds;
 void setup()
 {
   Serial.begin(115200);
+#if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S3)
+  delay(3000);
+#endif
   // Serial.setDebugOutput(true);
   // while(!Serial);
   Serial.println("Arduino_GFX PDQgraphicstest example!");

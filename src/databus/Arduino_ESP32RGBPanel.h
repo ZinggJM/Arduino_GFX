@@ -55,8 +55,8 @@ struct esp_rgb_panel_t
 
 class Arduino_ESP32RGBPanel
 {
-public:
-  Arduino_ESP32RGBPanel(
+  public:
+    Arduino_ESP32RGBPanel(
       int8_t de, int8_t vsync, int8_t hsync, int8_t pclk,
       int8_t r0, int8_t r1, int8_t r2, int8_t r3, int8_t r4,
       int8_t g0, int8_t g1, int8_t g2, int8_t g3, int8_t g4, int8_t g5,
@@ -66,33 +66,84 @@ public:
       uint16_t pclk_active_neg = 0, int32_t prefer_speed = GFX_NOT_DEFINED, bool useBigEndian = false,
       uint16_t de_idle_high = 0, uint16_t pclk_idle_high = 0);
 
-  bool begin(int32_t speed = GFX_NOT_DEFINED);
+    bool begin(int32_t speed = GFX_NOT_DEFINED);
 
-  uint16_t *getFrameBuffer(int16_t w, int16_t h);
+    uint16_t *getFrameBuffer(int16_t w, int16_t h);
 
-protected:
-private:
-  int32_t _speed;
-  int8_t _de, _vsync, _hsync, _pclk;
-  int8_t _r0, _r1, _r2, _r3, _r4;
-  int8_t _g0, _g1, _g2, _g3, _g4, _g5;
-  int8_t _b0, _b1, _b2, _b3, _b4;
-  uint16_t _hsync_polarity;
-  uint16_t _hsync_front_porch;
-  uint16_t _hsync_pulse_width;
-  uint16_t _hsync_back_porch;
-  uint16_t _vsync_polarity;
-  uint16_t _vsync_front_porch;
-  uint16_t _vsync_pulse_width;
-  uint16_t _vsync_back_porch;
-  uint16_t _pclk_active_neg;
-  int32_t _prefer_speed;
-  bool _useBigEndian;
-  uint16_t _de_idle_high;
-  uint16_t _pclk_idle_high;
+  protected:
+  private:
+    int32_t _speed;
+    int8_t _de, _vsync, _hsync, _pclk;
+    int8_t _r0, _r1, _r2, _r3, _r4;
+    int8_t _g0, _g1, _g2, _g3, _g4, _g5;
+    int8_t _b0, _b1, _b2, _b3, _b4;
+    uint16_t _hsync_polarity;
+    uint16_t _hsync_front_porch;
+    uint16_t _hsync_pulse_width;
+    uint16_t _hsync_back_porch;
+    uint16_t _vsync_polarity;
+    uint16_t _vsync_front_porch;
+    uint16_t _vsync_pulse_width;
+    uint16_t _vsync_back_porch;
+    uint16_t _pclk_active_neg;
+    int32_t _prefer_speed;
+    bool _useBigEndian;
+    uint16_t _de_idle_high;
+    uint16_t _pclk_idle_high;
 
-  esp_lcd_panel_handle_t _panel_handle = NULL;
-  esp_rgb_panel_t *_rgb_panel;
+    esp_lcd_panel_handle_t _panel_handle = NULL;
+    esp_rgb_panel_t *_rgb_panel;
+};
+
+#else // #if (!defined(ESP_ARDUINO_VERSION_MAJOR)) || (ESP_ARDUINO_VERSION_MAJOR < 3)
+
+#include "esp_lcd_panel_rgb.h"
+
+#include "esp_lcd_panel_rgb.h"
+#include "esp_lcd_panel_ops.h"
+
+class Arduino_ESP32RGBPanel
+{
+  public:
+    Arduino_ESP32RGBPanel(
+      int8_t de, int8_t vsync, int8_t hsync, int8_t pclk,
+      int8_t r0, int8_t r1, int8_t r2, int8_t r3, int8_t r4,
+      int8_t g0, int8_t g1, int8_t g2, int8_t g3, int8_t g4, int8_t g5,
+      int8_t b0, int8_t b1, int8_t b2, int8_t b3, int8_t b4,
+      uint16_t hsync_polarity, uint16_t hsync_front_porch, uint16_t hsync_pulse_width, uint16_t hsync_back_porch,
+      uint16_t vsync_polarity, uint16_t vsync_front_porch, uint16_t vsync_pulse_width, uint16_t vsync_back_porch,
+      uint16_t pclk_active_neg = 0, int32_t prefer_speed = GFX_NOT_DEFINED, bool useBigEndian = false,
+      uint16_t de_idle_high = 0, uint16_t pclk_idle_high = 0);
+
+    bool begin(int32_t speed = GFX_NOT_DEFINED);
+
+    uint16_t** getFrameBuffer(int16_t w, int16_t h);
+
+  protected:
+  private:
+    static bool on_vsync_event(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *event_data, void *user_data);
+    int32_t _speed;
+    int8_t _de, _vsync, _hsync, _pclk;
+    int8_t _r0, _r1, _r2, _r3, _r4;
+    int8_t _g0, _g1, _g2, _g3, _g4, _g5;
+    int8_t _b0, _b1, _b2, _b3, _b4;
+    uint16_t _hsync_polarity;
+    uint16_t _hsync_front_porch;
+    uint16_t _hsync_pulse_width;
+    uint16_t _hsync_back_porch;
+    uint16_t _vsync_polarity;
+    uint16_t _vsync_front_porch;
+    uint16_t _vsync_pulse_width;
+    uint16_t _vsync_back_porch;
+    uint16_t _pclk_active_neg;
+    int32_t _prefer_speed;
+    bool _useBigEndian;
+    uint16_t _de_idle_high;
+    uint16_t _pclk_idle_high;
+    void* frame_buffer_1;
+    void* frame_buffer_2;
+
+    esp_lcd_panel_handle_t _panel_handle = NULL;
 };
 
 #endif // #if (!defined(ESP_ARDUINO_VERSION_MAJOR)) || (ESP_ARDUINO_VERSION_MAJOR < 3)
